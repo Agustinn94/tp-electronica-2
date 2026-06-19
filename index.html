@@ -9,19 +9,25 @@
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
 <style>
   *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-  :root{--bg:#06120f;--panel:#0c1d18;--panel2:#0a1713;--line:#1b3a2e;--trace:#3fff9f;--trace-dim:#1d8f5c;--amber:#ffcf57;--red:#ff5f56;--txt:#bfe9d4;--mut:#5f8a76;--head:#eafff3;--blue:#4fd6ff;--grid:rgba(63,255,159,.06)}
+  :root{--bg:#06120f;--panel:#0c1d18;--line:#1b3a2e;--trace:#3fff9f;--trace-dim:#1d8f5c;--amber:#ffcf57;--red:#ff5f56;--txt:#bfe9d4;--mut:#5f8a76;--head:#eafff3;--blue:#4fd6ff;--grid:rgba(63,255,159,.06)}
   body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--txt);background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:26px 26px;line-height:1.55;padding-bottom:90px;user-select:none}
-  header{padding:24px 18px 14px;max-width:880px;margin:0 auto;border-bottom:1px solid var(--line)}
-  .eyebrow{font-family:'Consolas',monospace;font-size:12px;letter-spacing:3px;color:var(--trace-dim);text-transform:uppercase}
-  h1{font-size:24px;font-weight:800;color:var(--head);margin:7px 0 4px}
-  .meta{font-size:13px;color:var(--mut);font-family:'Consolas',monospace}
+  header{padding:22px 18px 12px;max-width:880px;margin:0 auto;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:14px}
+  .badge-tp{font-family:'Consolas',monospace;font-weight:800;font-size:22px;color:var(--bg);background:var(--trace);border-radius:12px;padding:8px 14px;flex:0 0 auto;box-shadow:0 0 18px rgba(63,255,159,.4)}
+  .htext .eyebrow{font-family:'Consolas',monospace;font-size:11px;letter-spacing:3px;color:var(--trace-dim);text-transform:uppercase}
+  .htext h1{font-size:21px;font-weight:800;color:var(--head);margin:4px 0 2px}
+  .htext .meta{font-size:12px;color:var(--mut);font-family:'Consolas',monospace}
   .wrap{max-width:880px;margin:0 auto;padding:16px}
   .gate{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px;margin:14px 0}
-  .gate h2{font-size:16px;color:var(--head);margin-bottom:12px}
+  .gate h2{font-size:17px;color:var(--head);margin-bottom:6px}
   .gate input{width:100%;background:#071510;border:1px solid var(--line);border-radius:10px;padding:12px 14px;color:var(--head);font-size:16px;font-family:inherit;margin-bottom:10px}
   .gate input:focus{outline:none;border-color:var(--trace)}
-  .gate .warn{font-size:12px;color:var(--amber);font-family:'Consolas',monospace;background:rgba(255,207,87,.08);border:1px solid #4a3d12;border-radius:9px;padding:10px;margin-bottom:12px;line-height:1.5}
-  .gate button{width:100%;background:var(--trace);color:var(--bg);border:none;border-radius:10px;padding:13px;font-weight:800;font-family:'Consolas',monospace;font-size:15px;cursor:pointer}
+  .rules{background:rgba(255,207,87,.07);border:1px solid #4a3d12;border-radius:11px;padding:13px;margin:12px 0;font-size:13px;color:var(--txt);line-height:1.6}
+  .rules b{color:var(--amber)} .rules ul{margin:6px 0 0 0;list-style:none} .rules li{padding-left:18px;position:relative;margin-bottom:5px} .rules li::before{content:'▸';position:absolute;left:0;color:var(--amber)}
+  .gate button{width:100%;background:var(--trace);color:var(--bg);border:none;border-radius:10px;padding:14px;font-weight:800;font-family:'Consolas',monospace;font-size:15px;cursor:pointer}
+  .confirm{display:none;background:#0d251c;border:1px solid var(--trace);border-radius:11px;padding:14px;margin-top:10px;text-align:center}
+  .confirm p{font-size:15px;color:var(--head);margin-bottom:10px} .confirm b{color:var(--trace)}
+  .confirm .row{display:flex;gap:10px} .confirm button{flex:1;padding:12px;border:none;border-radius:9px;font-weight:800;font-family:'Consolas',monospace;cursor:pointer}
+  .confirm .si{background:var(--trace);color:var(--bg)} .confirm .no{background:#3a1d1d;color:var(--red)}
   .app{display:none}
   .topbar{position:sticky;top:0;z-index:30;background:rgba(6,18,15,.95);backdrop-filter:blur(8px);border:1px solid var(--line);border-radius:13px;padding:10px 15px;margin:10px 0;display:flex;align-items:center;justify-content:space-between}
   .topbar .who{font-family:'Consolas',monospace;font-size:12px;color:var(--mut)} .topbar .who b{color:var(--txt)}
@@ -32,14 +38,15 @@
   .theory{background:linear-gradient(180deg,#0e231c,#0a1814);border:1px solid var(--trace-dim);border-radius:13px;padding:15px 16px;margin-bottom:13px}
   .theory .tl{font-family:'Consolas',monospace;font-size:11px;letter-spacing:1px;color:var(--trace);text-transform:uppercase;margin-bottom:7px}
   .theory p{font-size:13.5px;color:var(--txt);margin-bottom:7px} .theory b{color:var(--head)} .theory .hl{color:var(--amber)}
-  .theory .fig{max-width:100%;border-radius:10px;margin:10px 0 4px;background:#fff;display:block}
   .q{background:var(--panel);border:1px solid var(--line);border-radius:13px;padding:16px;margin-bottom:13px}
+  .q.draw-q{border-color:var(--blue)}
   .qhead{display:flex;align-items:baseline;gap:11px;margin-bottom:9px}
   .qnum{font-family:'Consolas',monospace;font-size:13px;font-weight:700;color:var(--bg);background:var(--trace);border-radius:7px;padding:2px 9px;flex:0 0 auto}
-  .qnum.concept{background:var(--blue)}
+  .qnum.concept{background:var(--blue)} .qnum.draw{background:#c084fc} .qnum.hard{background:var(--amber)}
   .qtitle{font-size:15px;color:var(--head);font-weight:700}
   .qbody{font-size:14px;margin-bottom:12px} .qbody .data{color:var(--amber);font-family:'Consolas',monospace}
-  .draw{display:inline-block;font-size:12px;color:var(--blue);border:1px dashed var(--blue);border-radius:7px;padding:3px 9px;margin-top:8px;font-family:'Consolas',monospace}
+  .draw{display:inline-block;font-size:12px;color:var(--blue);border:1px dashed var(--blue);border-radius:7px;padding:4px 10px;margin-top:8px;font-family:'Consolas',monospace}
+  .manualtag{display:inline-block;font-size:11px;color:#d8b4fe;background:#2a1840;border:1px solid #5b21b6;border-radius:7px;padding:3px 9px;margin-top:8px;font-family:'Consolas',monospace}
   .answer{display:flex;gap:9px;align-items:center;flex-wrap:wrap;margin-top:8px}
   .answer input{flex:1;min-width:110px;background:#071510;border:1px solid var(--line);border-radius:9px;padding:11px 13px;color:var(--trace);font-family:'Consolas',monospace;font-size:17px;font-weight:700;user-select:text}
   .answer input:focus{outline:none;border-color:var(--trace)} .answer .unit{font-family:'Consolas',monospace;color:var(--mut);font-size:14px}
@@ -47,14 +54,15 @@
   .opts{display:grid;gap:8px;margin-top:8px}
   .opt{background:#071510;border:1px solid var(--line);border-radius:9px;padding:11px 13px;cursor:pointer;font-size:14px;color:var(--txt)}
   .opt:hover{border-color:var(--trace-dim)} .opt.sel{border-color:var(--trace);color:var(--head);background:#0d251c}
+  .chk{display:flex;align-items:center;gap:10px;margin-top:8px;cursor:pointer;font-size:13px;color:var(--mut)}
+  .chk .box{width:22px;height:22px;border:1px solid var(--blue);border-radius:6px;flex:0 0 auto;display:flex;align-items:center;justify-content:center;color:var(--blue);font-weight:800}
+  .chk.on .box{background:var(--blue);color:var(--bg)} .chk.on{color:var(--txt)}
   .actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:18px}
-  .actions button{padding:14px 22px;border:none;border-radius:11px;font-weight:800;font-family:'Consolas',monospace;font-size:15px;cursor:pointer}
-  .primary{background:var(--trace);color:var(--bg)}
+  .actions button{padding:14px 22px;border:none;border-radius:11px;font-weight:800;font-family:'Consolas',monospace;font-size:15px;cursor:pointer} .primary{background:var(--trace);color:var(--bg)}
   .fabs{position:fixed;right:16px;bottom:80px;z-index:40;display:flex;flex-direction:column;gap:10px;align-items:flex-end}
   .fab{border:none;border-radius:50px;padding:12px 17px;font-weight:800;font-family:'Consolas',monospace;font-size:13px;box-shadow:0 6px 20px rgba(0,0,0,.4);cursor:pointer;display:none}
   .fab.formulas{background:var(--trace);color:var(--bg)} .fab.calc{background:var(--amber);color:#241c00}
-  .calc{position:fixed;right:16px;bottom:200px;z-index:45;width:260px;background:#0a1713;border:1px solid var(--amber);border-radius:16px;padding:12px;display:none;box-shadow:0 10px 40px rgba(0,0,0,.6)}
-  .calc.show{display:block}
+  .calc{position:fixed;right:16px;bottom:200px;z-index:45;width:260px;background:#0a1713;border:1px solid var(--amber);border-radius:16px;padding:12px;display:none;box-shadow:0 10px 40px rgba(0,0,0,.6)} .calc.show{display:block}
   .calc .disp{background:#071510;border:1px solid var(--line);border-radius:9px;padding:10px;text-align:right;font-family:'Consolas',monospace;font-size:20px;color:var(--amber);min-height:44px;word-break:break-all;user-select:text}
   .calc .keys{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:8px}
   .calc .keys button{padding:12px 0;border:none;border-radius:9px;background:#10241b;color:var(--head);font-family:'Consolas',monospace;font-size:15px;cursor:pointer}
@@ -68,167 +76,155 @@
   .lockscreen{position:fixed;inset:0;background:#06120f;z-index:60;display:none;flex-direction:column;align-items:center;justify-content:center;padding:24px;text-align:center} .lockscreen.show{display:flex}
   .lockscreen .big{font-family:'Consolas',monospace;font-size:90px;font-weight:800;color:var(--trace);text-shadow:0 0 30px rgba(63,255,159,.5);line-height:1} .lockscreen .big.low{color:var(--red);text-shadow:0 0 30px rgba(255,95,86,.5)}
   .lockscreen .msg{font-size:20px;color:var(--head);margin-top:14px} .lockscreen .sub{font-size:14px;color:var(--mut);margin-top:8px;font-family:'Consolas',monospace}
-  .lockscreen .fraud{color:var(--red);font-size:13px;margin-top:16px;font-family:'Consolas',monospace;max-width:340px}
+  .lockscreen .nota-aviso{font-size:13px;color:var(--amber);margin-top:18px;font-family:'Consolas',monospace;max-width:360px;line-height:1.5}
+  .lockscreen .fraud{color:var(--red);font-size:13px;margin-top:12px;font-family:'Consolas',monospace;max-width:340px}
   .toast{position:fixed;top:14px;left:50%;transform:translateX(-50%);z-index:80;background:#3a1d1d;border:1px solid var(--red);color:#ffd9d6;padding:13px 18px;border-radius:12px;font-size:14px;font-family:'Consolas',monospace;display:none;max-width:90%;text-align:center;box-shadow:0 6px 24px rgba(0,0,0,.5)} .toast.show{display:block}
   .katex{font-size:1.04em}
 </style>
 </head>
 <body>
 <header>
-  <div class="eyebrow">Electrónica II · 5° Año · TP N°4</div>
-  <h1>Amplificadores Diferenciales y el 741</h1>
-  <div class="meta">Entrega: martes 22/06/2026 · Prof. Gutiérrez</div>
+  <div class="badge-tp">TP 4</div>
+  <div class="htext">
+    <div class="eyebrow">Electrónica II · 5° Año</div>
+    <h1>Amplificadores Diferenciales y el 741</h1>
+    <div class="meta">Entrega: martes 22/06/2026 · Prof. Gutiérrez</div>
+  </div>
 </header>
 <div class="wrap">
   <div class="gate" id="gate">
     <h2>Identificate para empezar</h2>
-    <input id="inNombre" placeholder="Nombre y apellido">
+    <input id="inNombre" placeholder="Nombre y apellido completos">
+    <input id="inLista" placeholder="N° de lista o DNI">
     <input id="inCurso" placeholder="Curso y división (ej: 5° A)">
-    <div class="warn">⚠ Trabajo individual. Resolvé en una <b>hoja aparte</b> con los cálculos y dibujos (no copies el enunciado, poné "Ej 1", "Ej 2"...). Si salís de la pantalla o usás otra app, el sistema avisa: al <b>3° intento se entrega solo</b>. Tenés <b>calculadora</b> y <b>hoja de fórmulas</b> adentro.</div>
-    <button onclick="entrar()">Comenzar el TP</button>
-  </div>
-  <div class="app" id="app">
-    <div class="topbar">
-      <span class="who">ALUMNO/A: <b id="lblNombre">—</b> <span class="flag" id="flagState"></span></span>
-      <span class="prog" id="prog">0 / 13</span>
+    <div class="rules">
+      <b>⚠ Leé antes de empezar:</b>
+      <ul>
+        <li>La nota que te muestra la página al final <b>NO es la definitiva</b>. Se mantiene solo si entregás la <b>hoja con los cálculos y los dibujos</b> completos.</li>
+        <li>Resolvé en una hoja aparte. Poné "Ej 1", "Ej 2"... no copies el enunciado.</li>
+        <li>Es individual. Hacelo completo de una sentada y al final tocá <b>Entregar</b> (una sola vez).</li>
+        <li>Si cerrás la página sin entregar, no pasa nada: la volvés a abrir y la rehacés (es cortita).</li>
+        <li>Tenés <b>calculadora</b> y <b>hoja de fórmulas</b> adentro: no necesitás salir.</li>
+      </ul>
     </div>
-    <div class="intro">Resolvé <b>en tu hoja</b> cada punto, con desarrollo y dibujo del circuito. Cargá acá el resultado (se guarda solo). <b>La nota se revela al final.</b> Usá la <b>calculadora</b> y la <b>hoja de fórmulas</b> sin salir de la pantalla. En casa lo podés terminar: no se envía solo por tiempo.</div>
+    <button onclick="preConfirm()">Continuar</button>
+    <div class="confirm" id="confirmBox">
+      <p>¿Confirmás que sos <b id="cName">—</b>?<br><span style="font-size:12px;color:var(--mut)">Poner el nombre de otro es hacer trampa y queda registrado.</span></p>
+      <div class="row"><button class="no" onclick="cancelConfirm()">No, corregir</button><button class="si" onclick="entrar()">Sí, soy yo · Empezar</button></div>
+    </div>
+  </div>
 
+  <div class="app" id="app">
+    <div class="topbar"><span class="who">ALUMNO/A: <b id="lblNombre">—</b> <span class="flag" id="flagState"></span></span><span class="prog" id="prog">0 / 12</span></div>
+    <div class="intro">Resolvé <b>en tu hoja</b> cada punto con desarrollo y dibujos. Cargá acá lo que se pide (se guarda solo). Los puntos con <span style="color:#d8b4fe">candado violeta</span> los revisa el profe con tu hoja. <b>La nota se revela al final.</b></div>
+
+    <!-- BLOQUE A -->
     <div class="block-label">Bloque A · El par diferencial en continua</div>
-    <div class="theory">
-      <div class="tl">📖 Teoría — leé antes de resolver</div>
-      <p>El <b>amplificador diferencial</b> es la etapa de entrada de casi todos los amplificadores (incluido el operacional). Tiene <b>dos transistores gemelos</b> (Q1 y Q2) que comparten una <b>fuente de corriente común</b> en los emisores, fijada por <span class="hl">$R_E$</span> conectada a $-V_{EE}$.</p>
-      <p>Esa corriente total es la <span class="hl">corriente de fuente $I_T$</span>. Como los transistores son iguales, <b>$I_T$ se reparte por mitades</b>: $I_E = I_T/2$.</p>
-      <p>En cada colector: <b>$V_C = V_{CC} - I_E\,R_C$</b>. Si midieras $V_C = V_{CC}$, no circula corriente: el transistor está en <b>corte</b>.</p>
-      <img class="fig" src="par_diferencial.png" alt="Esquema del par diferencial" onerror="this.style.display='none'">
+    <div class="theory"><div class="tl">📖 Teoría — leé antes de resolver</div>
+      <p>El <b>amplificador diferencial</b> es la etapa de entrada de casi todos los amplificadores. Tiene <b>dos transistores gemelos</b> (Q1 y Q2) que comparten una <b>fuente de corriente común</b> en los emisores, fijada por <span class="hl">$R_E$</span> hacia $-V_{EE}$.</p>
+      <p>Esa corriente total es <span class="hl">$I_T$</span>, y como los transistores son iguales, se reparte por mitades: $I_E=I_T/2$. En cada colector: <b>$V_C=V_{CC}-I_E R_C$</b>. Si $V_C=V_{CC}$, no circula corriente: <b>corte</b>.</p>
     </div>
 
     <div class="q" id="q1"><div class="qhead"><span class="qnum">01</span><span class="qtitle">Corriente de fuente $I_T$</span></div>
-      <div class="qbody">Par diferencial: <span class="data">$V_{CC}=+15V$</span>, <span class="data">$V_{EE}=-15V$</span>, <span class="data">$R_C=4{,}7k\Omega$</span>, <span class="data">$R_E=10k\Omega$</span>. Calculá $I_T$ (en mA).<div class="draw">✎ Dibujá el circuito completo</div></div>
+      <div class="qbody">Par diferencial: <span class="data">$V_{CC}=+15V$</span>, <span class="data">$V_{EE}=-15V$</span>, <span class="data">$R_C=4{,}7k\Omega$</span>, <span class="data">$R_E=10k\Omega$</span>. Calculá $I_T$ (en mA).</div>
       <div class="answer"><input id="a1" inputmode="decimal" placeholder="I_T ="><span class="unit">mA</span></div><div class="saved" id="s1">✓ guardado</div></div>
 
-    <div class="q" id="q2"><div class="qhead"><span class="qnum">02</span><span class="qtitle">Corriente de cada transistor</span></div>
-      <div class="qbody">Con el $I_T$ anterior, ¿cuánta corriente circula por <b>cada</b> transistor? ($I_E$ en mA)</div>
-      <div class="answer"><input id="a2" inputmode="decimal" placeholder="I_E ="><span class="unit">mA</span></div><div class="saved" id="s2">✓ guardado</div></div>
+    <div class="q draw-q" id="q2"><div class="qhead"><span class="qnum draw">02</span><span class="qtitle">Dibujá el par diferencial</span></div>
+      <div class="qbody">En tu hoja, dibujá el <b>par diferencial completo</b>: los dos transistores Q1 y Q2, las dos $R_C=4{,}7k\Omega$ a $+V_{CC}$, la $R_E=10k\Omega$ a $-V_{EE}$, y las entradas v1 y v2 en las bases. Rotulá todo.
+        <div class="draw">✎ Va en la hoja, con regla</div>
+        <div class="manualtag">🔒 Lo revisa el profe con tu hoja</div></div>
+      <div class="chk" id="chk2" onclick="toggleChk(2)"><span class="box">✓</span><span>Ya lo dibujé en mi hoja</span></div><div class="saved" id="s2">✓ guardado</div></div>
 
-    <div class="q" id="q3"><div class="qhead"><span class="qnum concept">03</span><span class="qtitle">Concepto: ¿por qué la mitad?</span></div>
+    <div class="q" id="q3"><div class="qhead"><span class="qnum">03</span><span class="qtitle">Corriente de cada transistor</span></div>
+      <div class="qbody">Con el $I_T$ anterior, ¿cuánta circula por <b>cada</b> transistor? ($I_E$ en mA)</div>
+      <div class="answer"><input id="a3" inputmode="decimal" placeholder="I_E ="><span class="unit">mA</span></div><div class="saved" id="s3">✓ guardado</div></div>
+
+    <div class="q" id="q4"><div class="qhead"><span class="qnum concept">04</span><span class="qtitle">Concepto: ¿por qué la mitad?</span></div>
       <div class="qbody">¿Por qué la corriente de fuente se divide por igual entre Q1 y Q2?</div>
-      <div class="opts" id="opts3">
-        <div class="opt" onclick="pick(3,this,true)">Porque son gemelos y están en la misma condición: la corriente se reparte a la mitad</div>
-        <div class="opt" onclick="pick(3,this,false)">Porque uno conduce y el otro queda apagado</div>
-        <div class="opt" onclick="pick(3,this,false)">Porque $R_E$ duplica la corriente</div></div><div class="saved" id="s3">✓ guardado</div></div>
+      <div class="opts" id="opts4"><div class="opt" onclick="pick(4,this,true)">Porque son gemelos y están en la misma condición: se reparte a la mitad</div><div class="opt" onclick="pick(4,this,false)">Porque uno conduce y el otro queda apagado</div><div class="opt" onclick="pick(4,this,false)">Porque $R_E$ duplica la corriente</div></div><div class="saved" id="s4">✓ guardado</div></div>
 
-    <div class="q" id="q4"><div class="qhead"><span class="qnum">04</span><span class="qtitle">Tensión en el colector</span></div>
-      <div class="qbody">Con tu $I_E$, calculá $V_C$ en cada colector respecto a masa (en V).<div class="draw">✎ Marcá $V_C$ en tu dibujo</div></div>
-      <div class="answer"><input id="a4" inputmode="decimal" placeholder="V_C ="><span class="unit">V</span></div><div class="saved" id="s4">✓ guardado</div></div>
+    <div class="q" id="q5"><div class="qhead"><span class="qnum">05</span><span class="qtitle">Tensión en el colector</span></div>
+      <div class="qbody">Con tu $I_E$, calculá $V_C$ en cada colector (en V).<div class="draw">✎ Marcá $V_C$ en tu dibujo</div></div>
+      <div class="answer"><input id="a5" inputmode="decimal" placeholder="V_C ="><span class="unit">V</span></div><div class="saved" id="s5">✓ guardado</div></div>
 
-    <div class="q" id="q5"><div class="qhead"><span class="qnum concept">05</span><span class="qtitle">Diagnóstico de laboratorio</span></div>
-      <div class="qbody">Si midieras <span class="data">$V_C=15V$</span> (igual a la fuente), ¿qué le pasa al transistor?</div>
-      <div class="opts" id="opts5">
-        <div class="opt" onclick="pick(5,this,false)">Está saturado, conduce al máximo</div>
-        <div class="opt" onclick="pick(5,this,true)">Está en corte: no circula corriente, por eso $R_C$ no produce caída</div>
-        <div class="opt" onclick="pick(5,this,false)">Funciona normal en zona activa</div></div><div class="saved" id="s5">✓ guardado</div></div>
-
-    <div class="q" id="q6"><div class="qhead"><span class="qnum">06</span><span class="qtitle">Señal diferencial de entrada</span></div>
+    <div class="q" id="q7"><div class="qhead"><span class="qnum">07</span><span class="qtitle">Señal diferencial de entrada</span></div>
       <div class="qbody">A las bases llegan <span class="data">$v_1=15mV$</span> y <span class="data">$v_2=11mV$</span>. Calculá $v_{in}$ (en mV).</div>
-      <div class="answer"><input id="a6" inputmode="decimal" placeholder="v_in ="><span class="unit">mV</span></div><div class="saved" id="s6">✓ guardado</div></div>
+      <div class="answer"><input id="a7" inputmode="decimal" placeholder="v_in ="><span class="unit">mV</span></div><div class="saved" id="s7">✓ guardado</div></div>
 
+    <!-- BLOQUE B -->
     <div class="block-label">Bloque B · Ganancia y rechazo al ruido</div>
-    <div class="theory">
-      <div class="tl">📖 Teoría — leé antes de resolver</div>
-      <p>Primero se calcula la <b>resistencia interna del transistor a la señal</b>, <span class="hl">$r'_e = 25mV/I_E$</span>.</p>
-      <p>Con ella sale la <b>ganancia diferencial $A_d$</b> (cuánto agranda la señal útil) y la <b>ganancia de modo común $A_c$</b> (cuánto deja pasar el ruido que entra igual por las dos entradas). Bueno = $A_d$ grande y $A_c$ chica.</p>
-      <p>La relación es el <span class="hl">CMRR $=A_d/A_c$</span>, y en decibelios: <b>$CMRR_{dB}=20\log(CMRR)$</b>. Cuanto más alto, mejor rechaza el ruido.</p>
+    <div class="theory"><div class="tl">📖 Teoría — leé antes de resolver</div>
+      <p>Primero la <b>resistencia interna a la señal</b>: <span class="hl">$r'_e=25mV/I_E$</span>. Con ella, la <b>ganancia diferencial $A_d$</b> (señal útil) y la <b>ganancia de modo común $A_c$</b> (ruido). Bueno = $A_d$ grande, $A_c$ chica.</p>
+      <p>La calidad se mide con el <span class="hl">CMRR $=A_d/A_c$</span>, en decibelios: <b>$CMRR_{dB}=20\log(CMRR)$</b>. Más alto = mejor rechazo del ruido.</p>
     </div>
 
-    <div class="q" id="q7"><div class="qhead"><span class="qnum">07</span><span class="qtitle">Resistencia dinámica $r'_e$</span></div>
+    <div class="q" id="q8"><div class="qhead"><span class="qnum">08</span><span class="qtitle">Resistencia dinámica $r'_e$</span></div>
       <div class="qbody">Con tu $I_E$, calculá $r'_e$ (en Ω).</div>
-      <div class="answer"><input id="a7" inputmode="decimal" placeholder="r'e ="><span class="unit">Ω</span></div><div class="saved" id="s7">✓ guardado</div></div>
+      <div class="answer"><input id="a8" inputmode="decimal" placeholder="r'e ="><span class="unit">Ω</span></div><div class="saved" id="s8">✓ guardado</div></div>
 
-    <div class="q" id="q8"><div class="qhead"><span class="qnum">08</span><span class="qtitle">Ganancia de la señal útil $A_d$</span></div>
-      <div class="qbody">Usando $r'_e$, calculá $A_d$ (salida asimétrica). Número (veces).</div>
-      <div class="answer"><input id="a8" inputmode="decimal" placeholder="A_d ="><span class="unit">veces</span></div><div class="saved" id="s8">✓ guardado</div></div>
+    <div class="q" id="q9"><div class="qhead"><span class="qnum">09</span><span class="qtitle">Ganancia $A_d$ y ganancia $A_c$</span></div>
+      <div class="qbody">Calculá la ganancia diferencial $A_d$ (cargala abajo). En tu hoja calculá también $A_c=R_C/(2R_E)$, la vas a usar en el CMRR.</div>
+      <div class="answer"><input id="a9" inputmode="decimal" placeholder="A_d ="><span class="unit">veces</span></div><div class="saved" id="s9">✓ guardado</div></div>
 
-    <div class="q" id="q9"><div class="qhead"><span class="qnum">09</span><span class="qtitle">Ganancia del ruido $A_c$</span></div>
-      <div class="qbody">Calculá $A_c$ (con $R_C=4{,}7k\Omega$, $R_E=10k\Omega$).</div>
-      <div class="answer"><input id="a9" inputmode="decimal" placeholder="A_c ="><span class="unit">veces</span></div><div class="saved" id="s9">✓ guardado</div></div>
-
-    <div class="q" id="q10"><div class="qhead"><span class="qnum concept">10</span><span class="qtitle">Interpretación señal / ruido</span></div>
-      <div class="qbody">Tu $A_c$ dio menor que 1. ¿Qué significa?</div>
-      <div class="opts" id="opts10">
-        <div class="opt" onclick="pick(10,this,true)">El ruido se atenúa mientras la señal útil se amplifica: el par "limpia" la señal</div>
-        <div class="opt" onclick="pick(10,this,false)">El ruido y la señal se amplifican por igual</div>
-        <div class="opt" onclick="pick(10,this,false)">El amplificador no funciona</div></div><div class="saved" id="s10">✓ guardado</div></div>
-
-    <div class="q" id="q11"><div class="qhead"><span class="qnum">11</span><span class="qtitle">Calidad: CMRR en dB</span></div>
-      <div class="qbody">Con $A_d$ y $A_c$, calculá el <b>CMRR en decibelios</b> (un decimal).</div>
+    <div class="q" id="q11"><div class="qhead"><span class="qnum">11</span><span class="qtitle">CMRR en dB + criterio</span></div>
+      <div class="qbody">Calculá el <b>CMRR en decibelios</b> (un decimal).</div>
       <div class="answer"><input id="a11" inputmode="decimal" placeholder="CMRR ="><span class="unit">dB</span></div>
       <div style="font-size:13px;color:var(--txt);margin-top:12px">El manual exige $\geq 50dB$. ¿Aprueba?</div>
-      <div class="opts" id="opts11b">
-        <div class="opt" onclick="pick('11b',this,false)">Sí, supera los 50 dB</div>
-        <div class="opt" onclick="pick('11b',this,true)">No: queda apenas por debajo de 50 dB</div></div><div class="saved" id="s11">✓ guardado</div></div>
+      <div class="opts" id="opts11b"><div class="opt" onclick="pick('11b',this,false)">Sí, supera los 50 dB</div><div class="opt" onclick="pick('11b',this,true)">No: queda apenas por debajo de 50 dB</div></div><div class="saved" id="s11">✓ guardado</div></div>
 
-    <div class="q" id="q12"><div class="qhead"><span class="qnum concept">12</span><span class="qtitle">Mejora con espejo de corriente</span></div>
-      <div class="qbody">Reemplazás $R_E$ por un <b>espejo de corriente</b> ($2M\Omega$ internos). El CMRR sube muchísimo. ¿Por qué limpia mejor que una resistencia común?</div>
-      <div class="opts" id="opts12">
-        <div class="opt" onclick="pick(12,this,true)">Porque ofrece una resistencia enorme al ruido, pero deja pasar la corriente continua que el par necesita</div>
-        <div class="opt" onclick="pick(12,this,false)">Porque tiene menos resistencia y deja pasar todo</div>
-        <div class="opt" onclick="pick(12,this,false)">Porque amplifica directamente la señal diferencial</div></div>
-      <img class="fig" src="espejo.png" alt="" onerror="this.style.display='none'" style="max-width:62%"><div class="saved" id="s12">✓ guardado</div></div>
+    <div class="q" id="q12"><div class="qhead"><span class="qnum hard">12</span><span class="qtitle">⚡ Para pensar (más difícil)</span></div>
+      <div class="qbody">El equipo necesita una ganancia diferencial de <span class="data">$A_d=100$</span> en vez de la que te dio. Sabiendo que $A_d=R_C/(2r'_e)$ y que $R_C$ no cambia, calculá qué valor de <b>$r'_e$</b> haría falta (en Ω). <div style="font-size:12px;color:var(--mut);margin-top:5px">Pista: despejá $r'_e$ de la fórmula.</div></div>
+      <div class="answer"><input id="a12" inputmode="decimal" placeholder="r'e necesaria ="><span class="unit">Ω</span></div><div class="saved" id="s12">✓ guardado</div></div>
 
+    <div class="q" id="q13"><div class="qhead"><span class="qnum concept">13</span><span class="qtitle">Mejora con espejo de corriente</span></div>
+      <div class="qbody">Reemplazás $R_E$ por un <b>espejo de corriente</b> ($2M\Omega$). ¿Por qué "limpia" mejor el ruido?</div>
+      <div class="opts" id="opts13"><div class="opt" onclick="pick(13,this,true)">Porque ofrece una resistencia enorme al ruido, pero deja pasar la corriente continua que el par necesita</div><div class="opt" onclick="pick(13,this,false)">Porque tiene menos resistencia y deja pasar todo</div><div class="opt" onclick="pick(13,this,false)">Porque amplifica directamente la señal diferencial</div></div><div class="saved" id="s13">✓ guardado</div></div>
+
+    <!-- BLOQUE C -->
     <div class="block-label">Bloque C · El operacional 741</div>
-    <div class="theory">
-      <div class="tl">📖 Teoría — leé antes de resolver</div>
-      <p>El <b>741</b> es un amplificador operacional: por dentro es un par diferencial más etapas de ganancia, en un chip de <b>8 pines</b>. Pines clave: <span class="hl">pin 2</span> entrada inversora ($-$), <span class="hl">pin 3</span> no inversora ($+$), <span class="hl">pin 4</span> $-V_{EE}$, <span class="hl">pin 6</span> salida, <span class="hl">pin 7</span> $+V_{CC}$.</p>
-      <p>Amplifica la diferencia con ganancia gigante: <b>$V_{out}=A_{VOL}(v_+-v_-)$</b>. Pero <b>nunca da más tensión que su fuente</b>: si el cálculo supera la alimentación, la salida se "clava" cerca de ese valor. Eso es la <b>saturación</b> (con $\pm15V$, satura en ≈ $\pm13{,}5V$).</p>
-      <img class="fig" src="pinout_741.png" alt="Pinout del 741" onerror="this.style.display='none'">
+    <div class="theory"><div class="tl">📖 Teoría — leé antes de resolver</div>
+      <p>El <b>741</b> es un operacional: por dentro, un par diferencial más etapas de ganancia, en un chip de <b>8 pines</b>. Pines: <span class="hl">2</span>=entrada ($-$), <span class="hl">3</span>=entrada ($+$), <span class="hl">4</span>=$-V_{EE}$, <span class="hl">6</span>=salida, <span class="hl">7</span>=$+V_{CC}$.</p>
+      <p>Amplifica con ganancia gigante: <b>$V_{out}=A_{VOL}(v_+-v_-)$</b>, pero <b>nunca da más que su fuente</b>: si se pasa, se clava (saturación, ≈ $\pm13{,}5V$ con $\pm15V$).</p>
     </div>
 
-    <div class="q" id="q13"><div class="qhead"><span class="qnum">13</span><span class="qtitle">Salida del 741 y saturación</span></div>
+    <div class="q draw-q" id="q14"><div class="qhead"><span class="qnum draw">14</span><span class="qtitle">Dibujá el 741 y explicá su uso</span></div>
+      <div class="qbody">En tu hoja: dibujá el <b>741 con sus 8 pines</b> numerados, indicá qué es cada pin (2, 3, 4, 6, 7), y escribí en una frase <b>para qué se usa un 741</b>.
+        <div class="draw">✎ Va en la hoja</div><div class="manualtag">🔒 Lo revisa el profe con tu hoja</div></div>
+      <div class="chk" id="chk14" onclick="toggleChk(14)"><span class="box">✓</span><span>Ya lo dibujé y escribí para qué sirve</span></div><div class="saved" id="s14">✓ guardado</div></div>
+
+    <div class="q" id="q15"><div class="qhead"><span class="qnum">15</span><span class="qtitle">Salida del 741 y saturación</span></div>
       <div class="qbody">Un 741 con <span class="data">$A_{VOL}=100000$</span> y <span class="data">$\pm15V$</span> recibe <span class="data">$1mV$</span> entre entradas. Calculá la $V_{out}$ <b>teórica</b> (en V).</div>
-      <div class="answer"><input id="a13" inputmode="decimal" placeholder="V_out ="><span class="unit">V</span></div>
+      <div class="answer"><input id="a15" inputmode="decimal" placeholder="V_out ="><span class="unit">V</span></div>
       <div style="font-size:13px;color:var(--txt);margin-top:12px">¿Puede entregar realmente esa tensión?</div>
-      <div class="opts" id="opts13b">
-        <div class="opt" onclick="pick('13b',this,false)">Sí, entrega los 100 V sin problema</div>
-        <div class="opt" onclick="pick('13b',this,true)">No: solo tiene ±15V, se satura y se clava en ≈ ±13,5 V</div></div>
-      <div class="draw" style="margin-top:10px">✎ Dibujá el 741 con sus 8 pines</div><div class="saved" id="s13">✓ guardado</div></div>
+      <div class="opts" id="opts15b"><div class="opt" onclick="pick('15b',this,false)">Sí, entrega los 100 V</div><div class="opt" onclick="pick('15b',this,true)">No: solo tiene ±15V, se satura y se clava en ≈ ±13,5 V</div></div><div class="saved" id="s15">✓ guardado</div></div>
 
     <div class="actions"><button class="primary" onclick="confirmarEntrega()">Entregar el TP</button></div>
-    <p style="text-align:center;font-size:11px;color:var(--mut);margin-top:14px;font-family:'Consolas',monospace">Al entregar verás tu nota. No se puede modificar después.</p>
+    <p style="text-align:center;font-size:11px;color:var(--mut);margin-top:14px;font-family:'Consolas',monospace">Al entregar verás tu nota. Se entrega una sola vez. Fecha límite: viernes 26/06.</p>
   </div>
 </div>
 
-<div class="fabs">
-  <button class="fab formulas" id="fabFormulas" onclick="toggleSheet()">∑ Fórmulas</button>
-  <button class="fab calc" id="fabCalc" onclick="toggleCalc()">🖩 Calculadora</button>
-</div>
-<div class="calc" id="calc">
-  <div class="disp" id="calcDisp">0</div>
-  <div class="keys">
-    <button class="cl" onclick="calcC()">C</button><button class="op" onclick="calcIn('(')">(</button><button class="op" onclick="calcIn(')')">)</button><button class="op" onclick="calcIn('/')">÷</button>
-    <button onclick="calcIn('7')">7</button><button onclick="calcIn('8')">8</button><button onclick="calcIn('9')">9</button><button class="op" onclick="calcIn('*')">×</button>
-    <button onclick="calcIn('4')">4</button><button onclick="calcIn('5')">5</button><button onclick="calcIn('6')">6</button><button class="op" onclick="calcIn('-')">−</button>
-    <button onclick="calcIn('1')">1</button><button onclick="calcIn('2')">2</button><button onclick="calcIn('3')">3</button><button class="op" onclick="calcIn('+')">+</button>
-    <button onclick="calcIn('0')">0</button><button onclick="calcIn('.')">.</button><button class="op" onclick="calcLog()">log</button><button class="eq" onclick="calcEq()">=</button>
-  </div>
-</div>
-<div class="sheet" id="sheet">
-  <div class="sheet-inner">
-    <h3>HOJA DE FÓRMULAS</h3><p class="note">Estas son las herramientas. El resultado lo sacás vos.</p>
-    <div class="frow"><div class="nm">Corriente de fuente</div><div class="fx">$$I_T = \dfrac{V_{EE}}{R_E}$$</div></div>
-    <div class="frow"><div class="nm">Corriente de cada transistor</div><div class="fx">$$I_E = \dfrac{I_T}{2}$$</div></div>
-    <div class="frow"><div class="nm">Tensión de colector</div><div class="fx">$$V_C = V_{CC} - (I_E \cdot R_C)$$</div></div>
-    <div class="frow"><div class="nm">Resistencia dinámica</div><div class="fx">$$r'_e = \dfrac{25\,mV}{I_E}$$</div></div>
-    <div class="frow"><div class="nm">Ganancia diferencial</div><div class="fx">$$A_d = \dfrac{R_C}{2\,r'_e}$$</div></div>
-    <div class="frow"><div class="nm">Ganancia de modo común</div><div class="fx">$$A_c = \dfrac{R_C}{2\,R_E}$$</div></div>
-    <div class="frow"><div class="nm">Rechazo de modo común</div><div class="fx">$$CMRR=\dfrac{A_d}{A_c}\quad CMRR_{dB}=20\log(CMRR)$$</div></div>
-    <div class="frow"><div class="nm">Salida del 741</div><div class="fx">$$V_{out}=A_{VOL}(v_+-v_-)$$</div></div>
-    <div class="frow"><div class="nm">Señal diferencial</div><div class="fx">$$v_{in}=v_1-v_2$$</div></div>
-    <button class="closeb" onclick="toggleSheet()">Cerrar</button>
-  </div>
-</div>
+<div class="fabs"><button class="fab formulas" id="fabFormulas" onclick="toggleSheet()">∑ Fórmulas</button><button class="fab calc" id="fabCalc" onclick="toggleCalc()">🖩 Calculadora</button></div>
+<div class="calc" id="calc"><div class="disp" id="calcDisp">0</div><div class="keys">
+  <button class="cl" onclick="calcC()">C</button><button class="op" onclick="calcIn('(')">(</button><button class="op" onclick="calcIn(')')">)</button><button class="op" onclick="calcIn('/')">÷</button>
+  <button onclick="calcIn('7')">7</button><button onclick="calcIn('8')">8</button><button onclick="calcIn('9')">9</button><button class="op" onclick="calcIn('*')">×</button>
+  <button onclick="calcIn('4')">4</button><button onclick="calcIn('5')">5</button><button onclick="calcIn('6')">6</button><button class="op" onclick="calcIn('-')">−</button>
+  <button onclick="calcIn('1')">1</button><button onclick="calcIn('2')">2</button><button onclick="calcIn('3')">3</button><button class="op" onclick="calcIn('+')">+</button>
+  <button onclick="calcIn('0')">0</button><button onclick="calcIn('.')">.</button><button class="op" onclick="calcLog()">log</button><button class="eq" onclick="calcEq()">=</button>
+</div></div>
+<div class="sheet" id="sheet"><div class="sheet-inner"><h3>HOJA DE FÓRMULAS</h3><p class="note">Estas son las herramientas. El resultado lo sacás vos.</p>
+  <div class="frow"><div class="nm">Corriente de fuente</div><div class="fx">$$I_T=\dfrac{V_{EE}}{R_E}$$</div></div>
+  <div class="frow"><div class="nm">Corriente de cada transistor</div><div class="fx">$$I_E=\dfrac{I_T}{2}$$</div></div>
+  <div class="frow"><div class="nm">Tensión de colector</div><div class="fx">$$V_C=V_{CC}-(I_E\cdot R_C)$$</div></div>
+  <div class="frow"><div class="nm">Resistencia dinámica</div><div class="fx">$$r'_e=\dfrac{25\,mV}{I_E}$$</div></div>
+  <div class="frow"><div class="nm">Ganancia diferencial</div><div class="fx">$$A_d=\dfrac{R_C}{2\,r'_e}$$</div></div>
+  <div class="frow"><div class="nm">Ganancia de modo común</div><div class="fx">$$A_c=\dfrac{R_C}{2\,R_E}$$</div></div>
+  <div class="frow"><div class="nm">Rechazo de modo común</div><div class="fx">$$CMRR=\dfrac{A_d}{A_c}\quad CMRR_{dB}=20\log(CMRR)$$</div></div>
+  <div class="frow"><div class="nm">Salida del 741</div><div class="fx">$$V_{out}=A_{VOL}(v_+-v_-)$$</div></div>
+  <div class="frow"><div class="nm">Señal diferencial</div><div class="fx">$$v_{in}=v_1-v_2$$</div></div>
+  <button class="closeb" onclick="toggleSheet()">Cerrar</button>
+</div></div>
 <div class="toast" id="toast"></div>
-<div class="lockscreen" id="lock"><div class="big" id="lockGrade">—</div><div class="msg" id="lockMsg"></div><div class="sub" id="lockSub"></div><div class="fraud" id="lockFraud"></div></div>
+<div class="lockscreen" id="lock"><div class="big" id="lockGrade">—</div><div class="msg" id="lockMsg"></div><div class="sub" id="lockSub"></div><div class="nota-aviso" id="lockNota"></div><div class="fraud" id="lockFraud"></div></div>
 
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
@@ -236,28 +232,27 @@
 const firebaseConfig={apiKey:"AIzaSyDynSV-s9-r0hGYUwjZSZVU1WftIvsAhWk",authDomain:"quiz-electronica-tobar.firebaseapp.com",databaseURL:"https://quiz-electronica-tobar-default-rtdb.firebaseio.com",projectId:"quiz-electronica-tobar",storageBucket:"quiz-electronica-tobar.firebasestorage.app",messagingSenderId:"292208807910",appId:"1:292208807910:web:15763a1e45c53813399027"};
 let db=null; try{ firebase.initializeApp(firebaseConfig); db=firebase.database(); }catch(e){}
 const TP="TP4"; let alumno={}, alumnoId=null, entregado=false;
-const Q={1:{type:"num",ans:1.5,tol:0.1},2:{type:"num",ans:0.75,tol:0.06},3:{type:"opt"},4:{type:"num",ans:11.47,tol:0.4},5:{type:"opt"},6:{type:"num",ans:4,tol:0.2},7:{type:"num",ans:33.3,tol:2},8:{type:"num",ans:70.5,tol:3},9:{type:"num",ans:0.235,tol:0.02},10:{type:"opt"},11:{type:"num",ans:49.5,tol:1.2},'11b':{type:"opt"},12:{type:"opt"},13:{type:"num",ans:100,tol:2},'13b':{type:"opt"}};
-const ITEMS=Object.keys(Q); const VIS=[1,2,3,4,5,6,7,8,9,10,11,12,13];
+// num=numerico, opt=opciones, draw=dibujo (autocertificado, lo valida el profe)
+const Q={1:{type:"num",ans:1.5,tol:0.1},2:{type:"draw"},3:{type:"num",ans:0.75,tol:0.06},4:{type:"opt"},5:{type:"num",ans:11.47,tol:0.4},7:{type:"num",ans:4,tol:0.2},8:{type:"num",ans:33.3,tol:2},9:{type:"num",ans:70.5,tol:3},11:{type:"num",ans:49.5,tol:1.2},'11b':{type:"opt"},12:{type:"num",ans:23.5,tol:1.5},13:{type:"opt"},14:{type:"draw"},15:{type:"num",ans:100,tol:2},'15b':{type:"opt"}};
+const ITEMS=Object.keys(Q); const VIS=[1,2,3,4,5,7,8,9,11,12,13,14,15];
 const respuestas={}, aciertos={};
-function entrar(){const n=document.getElementById('inNombre').value.trim();const c=document.getElementById('inCurso').value.trim();if(n.length<3){alert("Escribí tu nombre completo.");return;}alumno={nombre:n,curso:c,inicio:Date.now()};alumnoId=(n.replace(/[^a-zA-Z0-9]/g,"_")+"_"+Date.now()).slice(0,60);document.getElementById('lblNombre').textContent=n;document.getElementById('gate').style.display='none';document.getElementById('app').style.display='block';document.getElementById('fabCalc').style.display='block';document.getElementById('fabFormulas').style.display='block';activarAntifraude();guardar(false);}
+function preConfirm(){const n=document.getElementById('inNombre').value.trim();if(n.length<3){alert("Escribí tu nombre completo.");return;}document.getElementById('cName').textContent=n;document.getElementById('confirmBox').style.display='block';}
+function cancelConfirm(){document.getElementById('confirmBox').style.display='none';}
+function entrar(){const n=document.getElementById('inNombre').value.trim();const l=document.getElementById('inLista').value.trim();const c=document.getElementById('inCurso').value.trim();alumno={nombre:n,lista:l,curso:c,inicio:Date.now()};alumnoId=(n.replace(/[^a-zA-Z0-9]/g,"_")+"_"+Date.now()).slice(0,60);document.getElementById('lblNombre').textContent=n;document.getElementById('gate').style.display='none';document.getElementById('app').style.display='block';document.getElementById('fabCalc').style.display='block';document.getElementById('fabFormulas').style.display='block';activarAntifraude();guardar(false);}
 function parseNum(s){if(!s)return NaN;return parseFloat(s.replace(/[^0-9,.\-]/g,'').replace(',','.'));}
 ITEMS.forEach(id=>{if(Q[id].type==="num"){document.addEventListener('input',e=>{if(e.target&&e.target.id==='a'+id){const v=parseNum(e.target.value);respuestas[id]=e.target.value;aciertos[id]=(!isNaN(v)&&Math.abs(v-Q[id].ans)<=Q[id].tol);document.getElementById('s'+id)?.classList.add('show');marcarProg();guardar(false);}});}});
 function pick(id,el,correct){const box=el.parentElement;[...box.children].forEach(c=>c.classList.remove('sel'));el.classList.add('sel');respuestas[id]=el.textContent.trim().slice(0,55);aciertos[id]=correct;const sid=String(id).replace('b','');document.getElementById('s'+sid)?.classList.add('show');marcarProg();guardar(false);}
-function marcarProg(){let h=0;VIS.forEach(id=>{if(id===11){if(respuestas[11]!==undefined||respuestas['11b']!==undefined)h++;}else if(id===13){if(respuestas[13]!==undefined||respuestas['13b']!==undefined)h++;}else if(respuestas[id]!==undefined)h++;});document.getElementById('prog').textContent=h+' / 13';}
+function toggleChk(id){const el=document.getElementById('chk'+id);el.classList.toggle('on');const on=el.classList.contains('on');respuestas[id]=on?"dibujado (a revisar)":"no dibujado";aciertos[id]=on;document.getElementById('s'+id)?.classList.add('show');marcarProg();guardar(false);}
+function marcarProg(){let h=0;VIS.forEach(id=>{if(id===11){if(respuestas[11]!==undefined||respuestas['11b']!==undefined)h++;}else if(id===15){if(respuestas[15]!==undefined||respuestas['15b']!==undefined)h++;}else if(respuestas[id]!==undefined)h++;});document.getElementById('prog').textContent=h+' / 12';}
 function calcularNota(){let pts=0;const tot=ITEMS.length;ITEMS.forEach(id=>{if(aciertos[id])pts++;});return {pts,tot,nota:pts/tot*10};}
-function guardar(final){if(!db||!alumnoId)return;const {pts,tot,nota}=calcularNota();db.ref('tp/'+TP+'/'+alumnoId).set({nombre:alumno.nombre,curso:alumno.curso,correctos:pts,total:tot,nota:+nota.toFixed(1),notaRedondeada:Math.round(nota),respuestas:respuestas,aciertos:aciertos,fraude:fraude.intentos,fraudeDetalle:fraude.log,entregado:!!final,actualizado:Date.now()});}
+function guardar(final){if(!db||!alumnoId)return;const {pts,tot,nota}=calcularNota();db.ref('tp/'+TP+'/'+alumnoId).set({nombre:alumno.nombre,lista:alumno.lista||'',curso:alumno.curso,correctos:pts,total:tot,nota:+nota.toFixed(1),notaRedondeada:Math.round(nota),respuestas:respuestas,aciertos:aciertos,fraude:fraude.intentos,fraudeDetalle:fraude.log,entregado:!!final,actualizado:Date.now()});}
 const fraude={intentos:0,log:[],bloqueado:false}; let lastFraud=0;
 function activarAntifraude(){document.addEventListener('visibilitychange',()=>{if(document.hidden)fraudeDetectado("salió de la pantalla");});window.addEventListener('blur',()=>{fraudeDetectado("cambió de ventana/app");});document.addEventListener('keyup',e=>{if(e.key==='PrintScreen')fraudeDetectado("captura de pantalla");});document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&['c','x','p','s'].includes((e.key||'').toLowerCase()))fraudeDetectado("copiar/imprimir");});document.addEventListener('contextmenu',e=>{e.preventDefault();fraudeDetectado("menú de copiar");});}
-function fraudeDetectado(motivo){if(entregado||fraude.bloqueado)return;const ahora=Date.now();if(ahora-lastFraud<1200)return;lastFraud=ahora;fraude.intentos++;fraude.log.push({motivo,t:new Date().toLocaleTimeString()});guardar(false);if(fraude.intentos<3){showToast("⚠ Detectamos que "+motivo+". Aviso "+fraude.intentos+" de 2. Si pasa otra vez, el TP se entrega solo.");document.getElementById('flagState').textContent="⚠ avisos: "+fraude.intentos+"/2";}else{fraude.bloqueado=true;entregar(true);}}
+function fraudeDetectado(m){if(entregado)return;const a=Date.now();if(a-lastFraud<1500)return;lastFraud=a;fraude.intentos++;fraude.log.push({motivo:m,t:new Date().toLocaleTimeString()});guardar(false);document.getElementById('flagState').textContent="salidas: "+fraude.intentos;}
 function showToast(t){const el=document.getElementById('toast');el.textContent=t;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),5000);}
 function confirmarEntrega(){if(confirm("¿Entregar el TP? No vas a poder modificarlo después."))entregar(false);}
-function entregar(porFraude){if(entregado)return;entregado=true;const {pts,tot,nota}=calcularNota();const r=Math.round(nota);guardar(true);const lock=document.getElementById('lock');lock.classList.add('show');const g=document.getElementById('lockGrade');g.textContent=r;g.className='big'+(r<6?' low':'');document.getElementById('lockMsg').textContent=(alumno.nombre||'')+': '+(r>=6?'¡Aprobado!':'Hay que reforzar');document.getElementById('lockSub').textContent=pts+' de '+tot+' ítems correctos · nota '+nota.toFixed(1);if(porFraude)document.getElementById('lockFraud').textContent="⛔ El TP se entregó automáticamente por superar los avisos de seguridad.";else if(fraude.intentos>0)document.getElementById('lockFraud').textContent="Nota: se registraron "+fraude.intentos+" aviso(s) de seguridad.";}
-let calcExp="";
-function toggleCalc(){document.getElementById('calc').classList.toggle('show');}
-function calcIn(x){calcExp+=x;document.getElementById('calcDisp').textContent=calcExp;}
-function calcC(){calcExp="";document.getElementById('calcDisp').textContent="0";}
-function calcLog(){if(calcExp){calcExp="Math.log10("+calcExp+")";document.getElementById('calcDisp').textContent="log(...)";}}
-function calcEq(){try{const r=Function('"use strict";return ('+calcExp+')')();document.getElementById('calcDisp').textContent=(Math.round(r*10000)/10000);calcExp=String(r);}catch(e){document.getElementById('calcDisp').textContent="error";calcExp="";}}
+function entregar(porFraude){if(entregado)return;entregado=true;const {pts,tot,nota}=calcularNota();const r=Math.round(nota);guardar(true);const lock=document.getElementById('lock');lock.classList.add('show');const g=document.getElementById('lockGrade');g.textContent=r;g.className='big'+(r<6?' low':'');document.getElementById('lockMsg').textContent=(alumno.nombre||'')+': '+(r>=6?'¡Aprobado!':'Hay que reforzar');document.getElementById('lockSub').textContent=pts+' de '+tot+' ítems correctos · nota '+nota.toFixed(1);document.getElementById('lockNota').textContent="Esta nota se confirma cuando entregues la hoja con los cálculos y los dibujos del par diferencial y el 741.";if(fraude.intentos>0)document.getElementById('lockFraud').textContent="Se registraron "+fraude.intentos+" salida(s) de pantalla.";}
+let calcExp="";function toggleCalc(){document.getElementById('calc').classList.toggle('show');}function calcIn(x){calcExp+=x;document.getElementById('calcDisp').textContent=calcExp;}function calcC(){calcExp="";document.getElementById('calcDisp').textContent="0";}function calcLog(){if(calcExp){calcExp="Math.log10("+calcExp+")";document.getElementById('calcDisp').textContent="log(...)";}}function calcEq(){try{const r=Function('"use strict";return ('+calcExp+')')();document.getElementById('calcDisp').textContent=(Math.round(r*10000)/10000);calcExp=String(r);}catch(e){document.getElementById('calcDisp').textContent="error";calcExp="";}}
 function toggleSheet(){document.getElementById('sheet').classList.toggle('show');}
 window.addEventListener('DOMContentLoaded',()=>{function render(){if(window.renderMathInElement)renderMathInElement(document.body,{delimiters:[{left:"$$",right:"$$",display:true},{left:"$",right:"$",display:false}]});else setTimeout(render,600);}render();});
 </script>
