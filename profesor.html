@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Panel del Profe · TP N°4</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  :root{--bg:#06120f;--panel:#0c1d18;--line:#1b3a2e;--trace:#3fff9f;--amber:#ffcf57;--red:#ff5f56;--txt:#bfe9d4;--mut:#5f8a76;--head:#eafff3}
+  body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--txt);padding:18px}
+  h1{color:var(--head);font-size:22px;margin-bottom:4px}
+  .meta{color:var(--mut);font-family:'Consolas',monospace;font-size:13px;margin-bottom:16px}
+  .stats{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px}
+  .stat{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px 16px;min-width:110px}
+  .stat .n{font-family:'Consolas',monospace;font-size:26px;font-weight:800;color:var(--trace)}
+  .stat .l{font-size:11px;color:var(--mut);text-transform:uppercase;letter-spacing:1px}
+  table{width:100%;border-collapse:collapse;background:var(--panel);border-radius:12px;overflow:hidden}
+  th{background:#0e2419;color:var(--head);text-align:left;padding:10px;font-size:12px;text-transform:uppercase;letter-spacing:1px}
+  td{padding:10px;border-top:1px solid var(--line);font-size:14px}
+  .nota{font-family:'Consolas',monospace;font-weight:800;font-size:18px}
+  .ap{color:var(--trace)} .des{color:var(--red)}
+  .badge{font-family:'Consolas',monospace;font-size:11px;padding:2px 7px;border-radius:20px}
+  .b-ok{background:#0e2419;color:var(--trace)} .b-fraud{background:#3a1d1d;color:var(--red)} .b-prog{background:#3a3413;color:var(--amber)}
+  .ver{background:var(--line);color:var(--head);border:none;border-radius:7px;padding:6px 12px;font-size:12px;cursor:pointer;font-family:'Consolas',monospace}
+  .detalle{display:none;background:#071510}
+  .detalle.show{display:table-row}
+  .detalle td{font-family:'Consolas',monospace;font-size:12px;color:var(--mut);line-height:1.9}
+  .ok{color:var(--trace)} .no{color:var(--red)}
+  .empty{text-align:center;color:var(--mut);padding:30px;font-family:'Consolas',monospace}
+</style>
+</head>
+<body>
+  <h1>Panel del Profe — TP N°4</h1>
+  <div class="meta">Amplificadores Diferenciales y 741 · tiempo real</div>
+  <div class="stats">
+    <div class="stat"><div class="n" id="sTotal">0</div><div class="l">Alumnos</div></div>
+    <div class="stat"><div class="n" id="sAprob">0</div><div class="l">Aprobados</div></div>
+    <div class="stat"><div class="n" id="sProm">—</div><div class="l">Promedio</div></div>
+    <div class="stat"><div class="n" id="sFraude" style="color:var(--red)">0</div><div class="l">Con alertas</div></div>
+  </div>
+  <table>
+    <thead><tr><th>Alumno</th><th>Curso</th><th>Correctos</th><th>Nota</th><th>Estado</th><th>Seguridad</th><th></th></tr></thead>
+    <tbody id="tbody"><tr><td colspan="7" class="empty">Esperando que los alumnos empiecen…</td></tr></tbody>
+  </table>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<script>
+const firebaseConfig={apiKey:"AIzaSyDynSV-s9-r0hGYUwjZSZVU1WftIvsAhWk",authDomain:"quiz-electronica-tobar.firebaseapp.com",databaseURL:"https://quiz-electronica-tobar-default-rtdb.firebaseio.com",projectId:"quiz-electronica-tobar",storageBucket:"quiz-electronica-tobar.firebasestorage.app",messagingSenderId:"292208807910",appId:"1:292208807910:web:15763a1e45c53813399027"};
+firebase.initializeApp(firebaseConfig);
+const db=firebase.database();
+const ITEMS=[1,2,3,4,5,6,7,8,9,'9b',10];
+db.ref('tp/TP4').on('value',snap=>{
+  const data=snap.val()||{};
+  const arr=Object.values(data).sort((a,b)=>(b.actualizado||0)-(a.actualizado||0));
+  const tb=document.getElementById('tbody');
+  if(!arr.length){tb.innerHTML='<tr><td colspan="7" class="empty">Esperando que los alumnos empiecen…</td></tr>';return;}
+  let aprob=0,sum=0,conFraude=0; tb.innerHTML='';
+  arr.forEach((a,i)=>{
+    if(a.notaRedondeada>=6)aprob++; sum+=a.nota||0;
+    const fr=a.fraude||0; if(fr>0)conFraude++;
+    let estado = a.entregado ? (a.notaRedondeada>=6?'<span class="badge b-ok">Entregado</span>':'<span class="badge b-fraud">Entregado</span>') : '<span class="badge b-prog">Haciendo…</span>';
+    let seg = fr===0?'<span class="badge b-ok">OK</span>':'<span class="badge b-fraud">⚠ '+fr+' alerta(s)</span>';
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td>${a.nombre||'—'}</td><td>${a.curso||'—'}</td>
+      <td>${a.correctos||0}/${a.total||11}</td>
+      <td class="nota ${a.notaRedondeada>=6?'ap':'des'}">${a.notaRedondeada??'—'}</td>
+      <td>${estado}</td><td>${seg}</td>
+      <td><button class="ver" onclick="document.getElementById('det${i}').classList.toggle('show')">Ver</button></td>`;
+    tb.appendChild(tr);
+    const det=document.createElement('tr'); det.className='detalle'; det.id='det'+i;
+    const resp=a.respuestas||{}, ac=a.aciertos||{}; let filas='';
+    ITEMS.forEach(q=>{
+      const r=resp[q]!==undefined?resp[q]:'(sin responder)';
+      filas+=`<span class="${ac[q]?'ok':'no'}">P${q}: ${r} ${ac[q]?'✓':'✗'}</span><br>`;
+    });
+    if(a.fraudeDetalle&&a.fraudeDetalle.length){
+      filas+='<br><span class="no">ALERTAS DE SEGURIDAD:</span><br>';
+      a.fraudeDetalle.forEach(f=>{ filas+=`<span class="no">• ${f.t} — ${f.motivo}</span><br>`; });
+    }
+    det.innerHTML=`<td colspan="7">${filas}</td>`;
+    tb.appendChild(det);
+  });
+  document.getElementById('sTotal').textContent=arr.length;
+  document.getElementById('sAprob').textContent=aprob;
+  document.getElementById('sProm').textContent=(sum/arr.length).toFixed(1);
+  document.getElementById('sFraude').textContent=conFraude;
+});
+</script>
+</body>
+</html>
