@@ -49,7 +49,7 @@
 const firebaseConfig={apiKey:"AIzaSyDynSV-s9-r0hGYUwjZSZVU1WftIvsAhWk",authDomain:"quiz-electronica-tobar.firebaseapp.com",databaseURL:"https://quiz-electronica-tobar-default-rtdb.firebaseio.com",projectId:"quiz-electronica-tobar",storageBucket:"quiz-electronica-tobar.firebasestorage.app",messagingSenderId:"292208807910",appId:"1:292208807910:web:15763a1e45c53813399027"};
 firebase.initializeApp(firebaseConfig);
 const db=firebase.database();
-const ITEMS=[1,2,3,4,5,6,7,8,9,'9b',10];
+const ITEMS=[1,2,3,4,5,7,8,9,11,'11b',12,13,14,15,'15b'];
 db.ref('tp/TP4').on('value',snap=>{
   const data=snap.val()||{};
   const arr=Object.values(data).sort((a,b)=>(b.actualizado||0)-(a.actualizado||0));
