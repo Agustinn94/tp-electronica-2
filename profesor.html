@@ -38,6 +38,7 @@
     <div class="stat"><div class="n" id="sProm">—</div><div class="l">Promedio</div></div>
     <div class="stat"><div class="n" id="sFraude" style="color:var(--red)">0</div><div class="l">Con alertas</div></div>
   </div>
+  <div style="margin-bottom:14px"><button onclick="borrarTodos()" style="background:#3a1d1d;color:var(--red);border:1px solid var(--red);border-radius:9px;padding:9px 15px;font-family:'Consolas',monospace;font-size:13px;cursor:pointer;font-weight:700">🗑 Borrar TODOS los registros</button> <span style="font-size:11px;color:var(--mut);font-family:'Consolas',monospace">(úsalo para limpiar las pruebas antes de la clase)</span></div>
   <table>
     <thead><tr><th>Alumno</th><th>Curso</th><th>Correctos</th><th>Nota</th><th>Estado</th><th>Seguridad</th><th></th></tr></thead>
     <tbody id="tbody"><tr><td colspan="7" class="empty">Esperando que los alumnos empiecen…</td></tr></tbody>
@@ -50,9 +51,11 @@ const firebaseConfig={apiKey:"AIzaSyDynSV-s9-r0hGYUwjZSZVU1WftIvsAhWk",authDomai
 firebase.initializeApp(firebaseConfig);
 const db=firebase.database();
 const ITEMS=[1,2,3,4,5,7,8,9,11,'11b',12,13,14,15,'15b'];
+function borrar(key,nombre){ if(confirm('¿Borrar el registro de '+(nombre||'este alumno')+'?')){ db.ref('tp/TP4/'+key).remove(); } }
+function borrarTodos(){ if(confirm('¿Seguro que querés BORRAR TODOS los registros? Esto no se puede deshacer. Úsalo solo para limpiar las pruebas.')){ if(confirm('Confirmá de nuevo: se borrará todo lo cargado hasta ahora.')){ db.ref('tp/TP4').remove(); } } }
 db.ref('tp/TP4').on('value',snap=>{
   const data=snap.val()||{};
-  const arr=Object.values(data).sort((a,b)=>(b.actualizado||0)-(a.actualizado||0));
+  const arr=Object.entries(data).map(([k,v])=>{v._key=k;return v;}).sort((a,b)=>(b.actualizado||0)-(a.actualizado||0));
   const tb=document.getElementById('tbody');
   if(!arr.length){tb.innerHTML='<tr><td colspan="7" class="empty">Esperando que los alumnos empiecen…</td></tr>';return;}
   let aprob=0,sum=0,conFraude=0; tb.innerHTML='';
@@ -66,7 +69,8 @@ db.ref('tp/TP4').on('value',snap=>{
       <td>${a.correctos||0}/${a.total||11}</td>
       <td class="nota ${a.notaRedondeada>=6?'ap':'des'}">${a.notaRedondeada??'—'}</td>
       <td>${estado}</td><td>${seg}</td>
-      <td><button class="ver" onclick="document.getElementById('det${i}').classList.toggle('show')">Ver</button></td>`;
+      <td><button class="ver" onclick="document.getElementById('det${i}').classList.toggle('show')">Ver</button>
+      <button class="ver" style="background:#3a1d1d;color:var(--red);margin-left:4px" onclick="borrar('${a._key}','${(a.nombre||'').replace(/'/g,"")}')">🗑</button></td>`;
     tb.appendChild(tr);
     const det=document.createElement('tr'); det.className='detalle'; det.id='det'+i;
     const resp=a.respuestas||{}, ac=a.aciertos||{}; let filas='';
