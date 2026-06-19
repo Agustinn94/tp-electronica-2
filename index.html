@@ -204,7 +204,7 @@
 </div>
 
 <div class="fabs"><button class="fab formulas" id="fabFormulas" onclick="toggleSheet()">∑ Fórmulas</button><button class="fab calc" id="fabCalc" onclick="toggleCalc()">🖩 Calculadora</button></div>
-<div class="calc" id="calc"><div class="disp" id="calcDisp">0</div><div class="keys">
+<div class="calc" id="calc"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><span style="font-family:'Consolas',monospace;font-size:12px;color:var(--amber);letter-spacing:1px">CALCULADORA</span><button onclick="toggleCalc()" style="background:#3a1d1d;color:var(--red);border:none;border-radius:8px;width:30px;height:30px;font-size:16px;font-weight:800;cursor:pointer">✕</button></div><div class="disp" id="calcDisp">0</div><div class="keys">
   <button class="cl" onclick="calcC()">C</button><button class="op" onclick="calcIn('(')">(</button><button class="op" onclick="calcIn(')')">)</button><button class="op" onclick="calcIn('/')">÷</button>
   <button onclick="calcIn('7')">7</button><button onclick="calcIn('8')">8</button><button onclick="calcIn('9')">9</button><button class="op" onclick="calcIn('*')">×</button>
   <button onclick="calcIn('4')">4</button><button onclick="calcIn('5')">5</button><button onclick="calcIn('6')">6</button><button class="op" onclick="calcIn('-')">−</button>
